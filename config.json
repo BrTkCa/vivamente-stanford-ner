@@ -1,4 +1,4 @@
 
 {
-    "URI_MONGO": "mongodb://cmaricy:wdmtz66*@clusterviva-shard-00-00-dr7fo.mongodb.net:27017,clusterviva-shard-00-01-dr7fo.mongodb.net:27017,clusterviva-shard-00-02-dr7fo.mongodb.net:27017/vivamente?ssl=true&replicaSet=ClusterViva-shard-0&authSource=admin"
+    "URI_MONGO": "mongodb://*:*@clusterviva-shard-00-00-dr7fo.mongodb.net:27017,clusterviva-shard-00-01-dr7fo.mongodb.net:27017,clusterviva-shard-00-02-dr7fo.mongodb.net:27017/vivamente?ssl=true&replicaSet=ClusterViva-shard-0&authSource=admin"
 }
