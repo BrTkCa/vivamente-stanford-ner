@@ -13,9 +13,10 @@ let ner = new Stanford.NER(); // nova instancia de NER
 let cfg = require('./config.json'); // obtendo o arquivo de configuracao
 let MongoClient = require('mongodb').MongoClient; // obtendo o cliente para se conectar no mongo 
 let query = require('./query'); // obtendo a string que contém a query inicial que será executada pelo MongoDB
-let regras = require('./regras'); // obtendo a string que contém a query inicial que será executada pelo MongoDB
+let regras = require('./regras');
 let latinize = require('latinize'); // Para tornar a string Latina (sem acentos). Necessario para ser processada no idioma ingles
 let colResultado; // referencia da collection que sera salva o resultado
+//let Sleep = require('sleep');
 /*
  * Esta função é responsável por analisar a propriedade "est" dentro de
  * cada documento e usar a biblioteca Stanford NER como facilitadora do
@@ -27,21 +28,28 @@ let colResultado; // referencia da collection que sera salva o resultado
  */
 function analisar(docs) {
     return __awaiter(this, void 0, void 0, function* () {
-        let val;
+        let val, index = 0;
         // Iterando os documentos retornados da consulta
         for (let item of docs) {
             // Verificando se o documento possui a propriedade "est"
             if (item.est) {
                 // Verificando a propriedade "est" possui indice valido
                 if (item.est[0]) {
+                    if (index % 200 == 0) {
+                        ner.exit();
+                        ner = new Stanford.NER();
+                    }
+                    ;
                     // Removendo os acentos e outros caracteres e transformando os arrays de historias numa string unica
-                    item.est = latinize(item.est.join(''));
+                    item.est = cleanUp(item.est.join(''));
                     // Se a string contém link, é analisada de forma diferente (sem link)
                     if (item.est.indexOf('http') > -1) {
                         // ner.getEntities obtém as entidades do texto
+                        index++;
                         val = yield ner.getEntities(item.est.split('http')[0]);
                     }
                     else {
+                        index++;
                         val = yield ner.getEntities(item.est);
                     }
                     // Com as entidades recuperadas, é iterado para verificar se contém PERSON (Pessoas)
@@ -63,7 +71,7 @@ function analisar(docs) {
                 }
             }
             // Após o processamento do documento, é salvo
-            salvar(item);
+            salvar(item, index);
         }
         // Chegou ao fim desse ciclo
         console.log("Processo concluido");
@@ -72,11 +80,18 @@ function analisar(docs) {
 /*
 * Esta função salva um documento passado por argumento em uma nova collection do MongoDB
 */
-function salvar(data) {
+function salvar(data, index) {
     colResultado.save(data, function (e, s) {
-        // Callback da operação de salvar
-        console.log("Inserido");
+        //Callback da operação de salvar
+        console.log("Salvando item modificado: ", index);
     });
+}
+/*
+* Esta função troca qualquer caracter que não é uma letra por nada para
+* estar apta à Stanford NER
+*/
+function cleanUp(texto) {
+    return latinize(texto.replace(/[^a-z ]+/gi, ''));
 }
 /*
 * Função principal do script, ela se conecta na base de dados e realiza a consulta.
@@ -89,11 +104,10 @@ function main() {
         // salvando o nome da collection onde será salvo os resultados tratados
         colResultado = db.collection('questionarios_nlp');
         // Execução de agregação do MongoDB
-        col.aggregate(query, {
-            allowDiskUse: true
-        }).toArray(function (erro, docs) {
+        col.aggregate(query, { allowDiskUse: true }).toArray(function (erro, docs) {
             if (!erro) {
                 // se nao houver erro, invoca iniciar
+                console.log(docs.length);
                 iniciar(docs);
             }
             else {
