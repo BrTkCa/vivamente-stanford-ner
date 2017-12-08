@@ -3,6 +3,7 @@ let ner = new Stanford.NER(); // nova instancia de NER
 let cfg = require('./config.json'); // obtendo o arquivo de configuracao
 let MongoClient = require('mongodb').MongoClient; // obtendo o cliente para se conectar no mongo 
 let query = require('./query'); // obtendo a string que contém a query inicial que será executada pelo MongoDB
+let regras = require('./regras'); // obtendo a string que contém a query inicial que será executada pelo MongoDB
 let latinize = require('latinize'); // Para tornar a string Latina (sem acentos). Necessario para ser processada no idioma ingles
 let colResultado; // referencia da collection que sera salva o resultado
 
@@ -43,6 +44,7 @@ async function analisar(docs) {
                                 value.forEach((nome) => {
                                     // Troca o nome identificado por um texto
                                     item.est = item.est.replace(nome, 'Somewho');
+                                    item.subject = regras(item.est);
                                 })
                             }
                         });
@@ -51,7 +53,7 @@ async function analisar(docs) {
             }
         }
         // Após o processamento do documento, é salvo
-        salvar(item)
+        salvar(item);
     }
     // Chegou ao fim desse ciclo
     console.log("Processo concluido");
@@ -79,12 +81,14 @@ function main() {
         // salvando o nome da collection onde será salvo os resultados tratados
         colResultado = db.collection('questionarios_nlp');
         // Execução de agregação do MongoDB
-        col.aggregate(query).toArray(function(erro, docs) {
+        col.aggregate(query, {
+            allowDiskUse: true
+        }).toArray(function(erro, docs) {
             if (!erro) {
                 // se nao houver erro, invoca iniciar
                 iniciar(docs);
             } else {
-                console.log("Erro encontrado");
+                console.log("Erro encontrado", erro);
             }
         })
     });

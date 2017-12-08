@@ -1,10 +1,10 @@
 module.exports = 
-`[
+[
     
         {
             $match: {
                 'posts.created_time': {
-                    $gte: new Date("2017-07-01T00:00:00.000Z")
+                    $gte: new Date("2010-01-01T00:00:00.000Z")
                 }
             }
         },
@@ -16,7 +16,7 @@ module.exports =
         {
             $match: {
                 'posts.created_time': {
-                    $gte: new Date("2017-07-01T00:00:00.000Z")
+                    $gte: new Date("2010-01-01T00:00:00.000Z")
                 }
             }
         },
@@ -69,6 +69,4 @@ module.exports =
             }
         }
     
-    ], {
-        allowDiskUse: true
-    }`;
+    ];
