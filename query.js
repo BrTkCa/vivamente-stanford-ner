@@ -49,8 +49,10 @@ module.exports =
                     dayOfWeek: {
                         $dayOfWeek: "$posts.created_time"
                     },
+                    data_completa: "$posts.created_time",
                     _id: '$_id'
                 },
+                
                 est: {
                     $push: {
                         $split: ["$posts.story", ":"]
@@ -65,7 +67,7 @@ module.exports =
     
         {
             $sort: {
-                _id: 1
+                data_completa: 1
             }
         }
     

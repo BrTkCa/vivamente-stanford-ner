@@ -35,7 +35,7 @@ function analisar(docs) {
             if (item.est) {
                 // Verificando a propriedade "est" possui indice valido
                 if (item.est[0]) {
-                    if (index % 200 == 0) {
+                    if (index % 1000 == 0) {
                         ner.exit();
                         ner = new Stanford.NER();
                     }
