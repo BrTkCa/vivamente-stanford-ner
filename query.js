@@ -49,7 +49,10 @@ module.exports =
                     dayOfWeek: {
                         $dayOfWeek: "$posts.created_time"
                     },
-                    data_completa: "$posts.created_time",
+                    data_completa: [{$year: '$posts.created_time'},{$month: '$posts.created_time'},
+                                     {$dayOfMonth: '$posts.created_time'},{$hour: '$posts.created_time'},
+                                    {$minute: "$posts.created_time"},{$second: "$posts.created_time"},
+                                {$dayOfYear: "$posts.created_time"},{$dayOfWeek: "$posts.created_time"}],
                     _id: '$_id'
                 },
                 
